@@ -1,7 +1,6 @@
 package com.example.fakecommerce.dtos;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -23,5 +22,5 @@ public class GetProductResponseDTO {
 
     private String image;
 
-    private String rating;
+    private BigDecimal rating;
 }
