@@ -18,6 +18,11 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at IS NULL")
 public class Order extends BaseEntity {
 
+    @Column(nullable = false)
+    private Long userId;
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
     private OrderStatus status;
 
 //    @ManyToMany
