@@ -3,6 +3,7 @@ package com.example.fakecommerce.controllers;
 import com.example.fakecommerce.dtos.CreateCategoryRequestDTO;
 import com.example.fakecommerce.schema.Category;
 import com.example.fakecommerce.services.CategoryService;
+import com.example.fakecommerce.utils.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,23 +18,24 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<Category> createCategory(@RequestBody CreateCategoryRequestDTO requestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(requestDTO));
+    public ResponseEntity<ApiResponse<Category>> createCategory(@RequestBody CreateCategoryRequestDTO requestDTO) {
+        Category category = categoryService.createCategory(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(category, "Category created successfully"));
     }
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
+    public ResponseEntity<ApiResponse<List<Category>>> getAllCategories() {
+        return ResponseEntity.ok(ApiResponse.success(categoryService.getAllCategories(), "Categories retrieved successfully"));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
-        return ResponseEntity.ok(categoryService.getCategoryById(id));
+    public ResponseEntity<ApiResponse<Category>> getCategoryById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(categoryService.getCategoryById(id), "Category retrieved successfully"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success(null, "Category deleted successfully"));
     }
 }

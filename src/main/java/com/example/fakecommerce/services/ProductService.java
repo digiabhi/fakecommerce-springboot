@@ -3,10 +3,14 @@ package com.example.fakecommerce.services;
 import com.example.fakecommerce.dtos.CreateProductRequestDTO;
 import com.example.fakecommerce.dtos.GetProductResponseDTO;
 import com.example.fakecommerce.dtos.GetProductWithDetailsResponseDTO;
+import com.example.fakecommerce.exceptions.ResourceDeletionException;
+import com.example.fakecommerce.exceptions.InvalidRequestException;
+import com.example.fakecommerce.exceptions.ResourceNotFoundException;
 import com.example.fakecommerce.repositories.ProductRepository;
 import com.example.fakecommerce.schema.Category;
 import com.example.fakecommerce.schema.Product;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 //import java.util.ArrayList;
@@ -59,11 +63,13 @@ public class ProductService {
                         .image(product.getImage())
                         .rating(product.getRating())
                         .build())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
     }
 
     public GetProductWithDetailsResponseDTO getProductWithDetailsById(Long id) {
-        Product product = productRepository.findProductsWithDetailsById(id).get(0);
+        Product product = productRepository.findProductsWithDetailsById(id).stream()
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
 
         return GetProductWithDetailsResponseDTO.builder()
                 .id(product.getId())
@@ -77,6 +83,9 @@ public class ProductService {
     }
 
     public Product createProduct(CreateProductRequestDTO requestDTO) {
+        if (requestDTO == null || requestDTO.getCategoryId() == null) {
+            throw new InvalidRequestException("Product categoryId is required");
+        }
 
         Category category = categoryService.getCategoryById(requestDTO.getCategoryId());
 
@@ -93,7 +102,17 @@ public class ProductService {
     }
 
     public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
+        Product product = getProductEntityById(id);
+        try {
+            productRepository.delete(product);
+        } catch (DataAccessException ex) {
+            throw new ResourceDeletionException("Product with id " + id + " could not be deleted", ex);
+        }
+    }
+
+    private Product getProductEntityById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
     }
 
     public List<Product> getProductsByCategory(String category) {
