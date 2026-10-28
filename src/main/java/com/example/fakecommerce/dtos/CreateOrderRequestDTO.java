@@ -6,11 +6,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class CreateOrderRequestDTO {
-    private Long userId;
-    private OrderStatus status;
+    private List<OrderItemRequestDTO> orderItems;
 }

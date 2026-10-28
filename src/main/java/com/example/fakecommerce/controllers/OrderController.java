@@ -1,6 +1,7 @@
 package com.example.fakecommerce.controllers;
 
 import com.example.fakecommerce.dtos.CreateOrderRequestDTO;
+import com.example.fakecommerce.dtos.GetOrderResponseDTO;
 import com.example.fakecommerce.dtos.OrderSummaryResponseDTO;
 import com.example.fakecommerce.dtos.UpdateOrderRequestDTO;
 import com.example.fakecommerce.schema.Order;
@@ -20,14 +21,13 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Order>>> getAllOrders() {
+    public ResponseEntity<ApiResponse<List<GetOrderResponseDTO>>> getAllOrders() {
         return ResponseEntity.ok(ApiResponse.success(orderService.getAllOrders(), "Orders retrieved successfully"));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Order>> createOrder(@RequestBody CreateOrderRequestDTO requestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(orderService.createOrder(requestDTO), "Order created successfully"));
+    public ResponseEntity<ApiResponse<GetOrderResponseDTO>> createOrder() {
+        throw new UnsupportedOperationException("Order creation is not supported in this version of the API");
     }
 
     @DeleteMapping("/{id}")
@@ -37,26 +37,8 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Order>> getOrderById(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(orderService.getOrderById(id), "Order retrieved successfully"));
-    }
-
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<List<Order>>> getOrdersByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(ApiResponse.success(orderService.getOrdersByUserId(userId),
-                "Orders retrieved successfully"));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Order>> updateOrder(@PathVariable Long id,
-                                                          @RequestBody UpdateOrderRequestDTO requestDTO) {
-        return ResponseEntity.ok(ApiResponse.success(orderService.updateOrder(id, requestDTO),
-                "Order updated successfully"));
-    }
-
-    @GetMapping("/{id}/summary")
-    public ResponseEntity<ApiResponse<OrderSummaryResponseDTO>> getOrderSummary(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(orderService.getOrderSummary(id),
-                "Order summary retrieved successfully"));
+    public ResponseEntity<ApiResponse<GetOrderResponseDTO>> getOrderById(@PathVariable Long id) {
+        GetOrderResponseDTO order = orderService.getOrderById(id);
+        return ResponseEntity.ok(ApiResponse.success(order, "Order retrieved successfully"));
     }
 }
