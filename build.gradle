@@ -35,8 +35,15 @@ dependencies {
     //flyway core and flyway mysql
     implementation 'org.springframework.boot:spring-boot-starter-flyway'
     implementation 'org.flywaydb:flyway-mysql'
+
+    // dotenv for loading .env files
+    implementation 'io.github.cdimascio:dotenv-java:3.2.0'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.named('bootRun') {
+    jvmArgs = ['-javaagent:newrelic/newrelic.jar']
 }

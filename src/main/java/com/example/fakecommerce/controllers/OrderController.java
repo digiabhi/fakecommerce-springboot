@@ -2,9 +2,7 @@ package com.example.fakecommerce.controllers;
 
 import com.example.fakecommerce.dtos.CreateOrderRequestDTO;
 import com.example.fakecommerce.dtos.GetOrderResponseDTO;
-import com.example.fakecommerce.dtos.OrderSummaryResponseDTO;
 import com.example.fakecommerce.dtos.UpdateOrderRequestDTO;
-import com.example.fakecommerce.schema.Order;
 import com.example.fakecommerce.services.OrderService;
 import com.example.fakecommerce.utils.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +24,9 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<GetOrderResponseDTO>> createOrder() {
-        throw new UnsupportedOperationException("Order creation is not supported in this version of the API");
+    public ResponseEntity<ApiResponse<GetOrderResponseDTO>> createOrder(@RequestBody CreateOrderRequestDTO createOrderRequestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(orderService.createOrder(createOrderRequestDTO), "Order created successfully"));
     }
 
     @DeleteMapping("/{id}")
@@ -40,5 +39,11 @@ public class OrderController {
     public ResponseEntity<ApiResponse<GetOrderResponseDTO>> getOrderById(@PathVariable Long id) {
         GetOrderResponseDTO order = orderService.getOrderById(id);
         return ResponseEntity.ok(ApiResponse.success(order, "Order retrieved successfully"));
+    }
+
+    @PutMapping
+    public ResponseEntity<ApiResponse<GetOrderResponseDTO>> updateOrder(@PathVariable Long id, @RequestBody UpdateOrderRequestDTO updateOrderRequestDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(orderService.updateOrder(id, updateOrderRequestDTO), "Order updated successfully"));
     }
 }
