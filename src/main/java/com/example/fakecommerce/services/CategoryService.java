@@ -7,11 +7,13 @@ import com.example.fakecommerce.exceptions.ResourceNotFoundException;
 import com.example.fakecommerce.repositories.CategoryRepository;
 import com.example.fakecommerce.schema.Category;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
@@ -37,7 +39,9 @@ public class CategoryService {
         Category category = getCategoryById(categoryId);
         try {
             categoryRepository.delete(category);
+            log.info("Category with id {} deleted successfully", categoryId);
         } catch (DataAccessException ex) {
+            log.error("Error deleting category with id {}", categoryId, ex);
             throw new ResourceDeletionException("Category with id " + categoryId + " could not be deleted", ex);
         }
         return category;
