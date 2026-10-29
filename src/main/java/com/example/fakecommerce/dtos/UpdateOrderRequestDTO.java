@@ -15,6 +15,6 @@ import java.util.List;
 public class UpdateOrderRequestDTO {
     private OrderStatus status;
 
-    private List<OrderItemActionDTO> orderItemActions;
+    private List<OrderItemActionDTO> orderItems;
 
 }
