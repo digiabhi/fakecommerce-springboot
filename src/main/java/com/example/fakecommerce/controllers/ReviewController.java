@@ -1,7 +1,7 @@
 package com.example.fakecommerce.controllers;
 
 import com.example.fakecommerce.dtos.CreateReviewRequestDTO;
-import com.example.fakecommerce.schema.Review;
+import com.example.fakecommerce.dtos.GetReviewResponseDTO;
 import com.example.fakecommerce.services.ReviewService;
 import com.example.fakecommerce.utils.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,12 +18,12 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Review>>> getAllReviews() {
+    public ResponseEntity<ApiResponse<List<GetReviewResponseDTO>>> getAllReviews() {
         return ResponseEntity.ok(ApiResponse.success(reviewService.getAllReviews(), "Reviews retrieved successfully"));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Review>> createReview(@RequestBody CreateReviewRequestDTO requestDTO) {
+    public ResponseEntity<ApiResponse<GetReviewResponseDTO>> createReview(@RequestBody CreateReviewRequestDTO requestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(reviewService.createReview(requestDTO), "Review created successfully"));
     }
@@ -35,18 +35,18 @@ public class ReviewController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Review>> getReviewById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<GetReviewResponseDTO>> getReviewById(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(reviewService.getReviewById(id), "Review retrieved successfully"));
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseEntity<ApiResponse<List<Review>>> getReviewsByProductId(@PathVariable Long productId) {
+    public ResponseEntity<ApiResponse<List<GetReviewResponseDTO>>> getReviewsByProductId(@PathVariable Long productId) {
         return ResponseEntity.ok(ApiResponse.success(reviewService.getReviewsByProductId(productId),
                 "Reviews retrieved successfully"));
     }
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<ApiResponse<List<Review>>> getReviewsByOrderId(@PathVariable Long orderId) {
+    public ResponseEntity<ApiResponse<List<GetReviewResponseDTO>>> getReviewsByOrderId(@PathVariable Long orderId) {
         return ResponseEntity.ok(ApiResponse.success(reviewService.getReviewsByOrderId(orderId),
                 "Reviews retrieved successfully"));
     }

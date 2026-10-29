@@ -94,6 +94,7 @@ public class OrderService {
         return orderAdapter.mapToGetOrderResponseDTO(order);
     }
 
+    @Transactional
     public GetOrderResponseDTO updateOrder(Long id, UpdateOrderRequestDTO updateOrderRequestDTO){
         Order order = orderRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Order not found with id: " + id));
 
