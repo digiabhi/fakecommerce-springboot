@@ -32,28 +32,40 @@ public class OrderService {
     private final OrderAdapter orderAdapter;
 
     public List<GetOrderResponseDTO> getAllOrders() {
+        log.info("Fetching all orders");
         List<Order> orders = orderRepository.findAll();
         return orderAdapter.mapToGetOrderResponseDTOList(orders);
     }
 
     public GetOrderResponseDTO getOrderById(Long id) {
+        log.info("Fetching order with id: {}", id);
         return orderAdapter.mapToGetOrderResponseDTO(orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order with id " + id + " not found")));
+                .orElseThrow(() -> {
+                    log.error("Order with id {} not found", id);
+                    return new ResourceNotFoundException("Order with id " + id + " not found");
+                }));
     }
 
     public void deleteOrder(Long id) {
+        log.info("Deleting order with id: {}", id);
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order with id " + id + " not found"));
+                .orElseThrow(() -> {
+                    log.error("Order with id {} not found for deletion", id);
+                    return new ResourceNotFoundException("Order with id " + id + " not found");
+                });
         orderRepository.delete(order);
+        log.info("Order with id {} deleted successfully", id);
     }
 
     @Transactional
     public GetOrderResponseDTO createOrder(CreateOrderRequestDTO createOrderRequestDTO){
+        log.info("Creating new order");
         Order order = Order.builder()
                 .status(OrderStatus.PENDING)
                 .build();
 
         orderRepository.save(order);
+        log.info("Saved pending order with id: {}", order.getId());
 
         if(createOrderRequestDTO.getOrderItems()!= null) {
 //            for(var itemDTO : createOrderRequestDTO.getOrderItems()) {
@@ -99,15 +111,21 @@ public class OrderService {
             }
 
             orderProductRepository.saveAll(orderProducts);
+            log.info("Saved {} order items for order id: {}", orderProducts.size(), order.getId());
         }
         return orderAdapter.mapToGetOrderResponseDTO(order);
     }
 
     @Transactional
     public GetOrderResponseDTO updateOrder(Long id, UpdateOrderRequestDTO updateOrderRequestDTO){
-        Order order = orderRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Order not found with id: " + id));
+        log.info("Updating order with id: {}", id);
+        Order order = orderRepository.findById(id).orElseThrow(()-> {
+            log.error("Order not found with id: {}", id);
+            return new ResourceNotFoundException("Order not found with id: " + id);
+        });
 
         if(updateOrderRequestDTO.getStatus()!=null){
+            log.info("Updating status of order {} to {}", id, updateOrderRequestDTO.getStatus());
             order.setStatus(updateOrderRequestDTO.getStatus());
             orderRepository.save(order);
         }
@@ -116,7 +134,7 @@ public class OrderService {
             List<Long> productIds = updateOrderRequestDTO.getOrderItems().stream()
                     .map(item -> item.getProductId())
                     .collect(Collectors.toList());
-            System.out.println(productIds);
+            log.debug("Updating order {} with product ids: {}", id, productIds);
 
             List<Product> products = productRepository.findAllById(productIds);
 
@@ -125,6 +143,7 @@ public class OrderService {
 
             for(var pid : productIds){
                 if(!productMap.containsKey(pid)){
+                    log.error("Product not found with id: {}", pid);
                     throw new ResourceNotFoundException("Product not found with id: " + pid);
                 }
             }
@@ -182,9 +201,11 @@ public class OrderService {
 
             if(!toSave.isEmpty()){
                 orderProductRepository.saveAll(toSave);
+                log.info("Saved {} modified order items for order id: {}", toSave.size(), id);
             }
             if(!toDelete.isEmpty()){
                 orderProductRepository.deleteAll(toDelete);
+                log.info("Deleted {} order items for order id: {}", toDelete.size(), id);
             }
         }
 
@@ -192,8 +213,12 @@ public class OrderService {
     }
 
     public GetOrderSummaryResponseDTO getOrderSummary(Long id){
+        log.info("Fetching order summary for order id: {}", id);
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+                .orElseThrow(() -> {
+                    log.error("Order not found with id: {}", id);
+                    return new ResourceNotFoundException("Order not found with id: " + id);
+                });
 
         List<OrderProduct> orderProducts = orderProductRepository.findByOrderWithProduct(order);
 
@@ -203,6 +228,7 @@ public class OrderService {
 
         BigDecimal totalPrice = orderProducts.stream().map(op-> op.getProduct().getPrice().multiply(BigDecimal.valueOf(op.getQuantity()))).reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        log.info("Order summary for order id: {}: totalItems={}, totalPrice={}", id, totalItems, totalPrice);
         return GetOrderSummaryResponseDTO.builder().id(order.getId()).status(order.getStatus()).orderItems(items).totalItems(totalItems).totalPrice(totalPrice).createdAt(order.getCreatedAt()).updatedAt(order.getUpdatedAt()).build();
     }
 }

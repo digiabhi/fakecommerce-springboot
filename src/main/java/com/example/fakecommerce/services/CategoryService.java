@@ -20,22 +20,32 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     public List<Category> getAllCategories() {
+        log.info("Fetching all categories");
         return categoryRepository.findAll();
     }
 
     public Category getCategoryById(Long categoryId) {
-        return categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category with id " + categoryId + " not found"));
+        log.info("Fetching category with id: {}", categoryId);
+        return categoryRepository.findById(categoryId).orElseThrow(() -> {
+            log.error("Category with id {} not found", categoryId);
+            return new ResourceNotFoundException("Category with id " + categoryId + " not found");
+        });
     }
 
     public Category createCategory(CreateCategoryRequestDTO requestDTO) {
         if (requestDTO == null || requestDTO.getName() == null || requestDTO.getName().isBlank()) {
+            log.error("Failed to create category: category name is required");
             throw new InvalidRequestException("Category name is required");
         }
+        log.info("Creating category with name: {}", requestDTO.getName());
         Category newCategory = Category.builder().name(requestDTO.getName()).build();
-        return categoryRepository.save(newCategory);
+        Category savedCategory = categoryRepository.save(newCategory);
+        log.info("Category created successfully with id: {}", savedCategory.getId());
+        return savedCategory;
     }
 
     public Category deleteCategory(Long categoryId) {
+        log.info("Deleting category with id: {}", categoryId);
         Category category = getCategoryById(categoryId);
         try {
             categoryRepository.delete(category);
